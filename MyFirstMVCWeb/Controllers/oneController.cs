@@ -15,6 +15,7 @@ namespace MyFirstMVCWeb.Controllers
 
         public ActionResult LogOff()
         {//登出
+            int w = 0;
 
             Session.Clear();
             return RedirectToAction("register");
