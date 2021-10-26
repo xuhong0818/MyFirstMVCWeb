@@ -117,7 +117,7 @@ namespace MyFirstMVCWeb.Controllers
             string status = Convert.ToString(Session["UserID"]); //登入者的學號
             string name = Convert.ToString(Session["name"]);
             student1Table_1 we = db.student1Table_1.FirstOrDefault(t => t.stud == status);
-            ViewBag.naME = name;
+            ViewBag.naME = we.name;
             List<student1Table_1> st = db.student1Table_1.ToList();
             List<string> class1 = new List<string>();
             foreach (var e in st)

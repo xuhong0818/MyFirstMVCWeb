@@ -30,7 +30,7 @@ body #login-box {
 }
 
 body #login-box .form{
-    padding-top:50px;
+    padding-top:25px;
 }
 
 #login-box .form .item {
@@ -78,7 +78,6 @@ body #login-box .form{
     color: black;
     border-radius: 10px;
     font-family: Microsoft JhengHei;
-    margin-top: 10px;
 }
 
     #login-box #button:hover {

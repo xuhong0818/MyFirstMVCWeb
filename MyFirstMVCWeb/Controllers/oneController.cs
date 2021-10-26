@@ -51,18 +51,25 @@ namespace MyFirstMVCWeb.Controllers
                 }
                 else
                 {
-                    ViewBag.Error = "帳密有誤,請重新輸入";
-                    return View("register");
+                    TempData["Error"] = "帳密有誤,請重新輸入";
+                    ViewData["Error"] = "帳密有誤,請重新輸入";
+                    return RedirectToAction("register");
                 }
             }
             else
             {
-                ViewBag.Error = "不存在的帳密";
-                return View("register");
+                TempData["Error"] = "不存在的帳密";
+                ViewData["Error"] = "不存在的帳密";
+                return RedirectToAction("register");
             }
         }
-        public ActionResult register()
+        public ActionResult register(string wq)
         {
+            if (wq == "1")
+            {
+                ViewData["Error"] = "請重新登入";
+            }
+
             string Date = DateTime.Now.ToString("yyyy-MM-dd");
             List<allrollcallTable_1> ew = db.allrollcallTable_1.ToList();
             semesterTable_1 we = db.semesterTable_1.FirstOrDefault(t => t.data == Date);

@@ -6,7 +6,7 @@
             alert("沒有資料,請登入");
         </script>
     }
-    string teacher_name = Convert.ToString(Session["name"]);
+    string teacher_name = ViewBag.teacher;
 
     List<classromTable_1> wew = ViewBag.data4;
     ViewBag.Title = "exit";
@@ -144,6 +144,7 @@
                                             ///框大一點
                                         }
                                         <input type="hidden" name="class2" value="@a.class2">
+                                        <input type="hidden" name="data2" value="@a.data">
                                     </tr>
                                 }
                                 else

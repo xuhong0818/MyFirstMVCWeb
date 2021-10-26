@@ -39,15 +39,21 @@ namespace MyFirstMVCWeb.Controllers
         {
             if (Session["name"] == null)
             {
-                return RedirectToAction("register", "one");
+                string wq = "1";
+                return RedirectToAction("register", "one", new { wq });
             }
             return View();
         }
 
-        public ActionResult studentmenu(string b)//補點名(解決) 按完補點名回到頁面
+        public ActionResult studentmenu(string b)//補點名(還沒解決) 按完補點名回到頁面
         {
             ViewBag.course = b;
             string teacher_name = Convert.ToString(Session["name"]);
+            teacher1 we = db.teacher1.FirstOrDefault(t => t.teachername == teacher_name);
+            if (we != null)
+            {
+                ViewBag.teacherid = we.teacher;
+            }
             List<classromTable_1> cla = db.classromTable_1.ToList();
             ViewBag.cla = cla;
             List<student1Table_1> st = db.student1Table_1.ToList();
@@ -75,9 +81,10 @@ namespace MyFirstMVCWeb.Controllers
         //把表單裡的數據存在FormCollection和sa裡 就能從兩者找值
         ///post過來的數值儲存在string陣列裡再用foreach迭代出來
         [HttpPost]
-        public ActionResult Edit(string[] status, string class2)//補點名(解決) 按完補點名回到頁面
+        public ActionResult Edit(string[] status, string class2, string data2)//補點名(解決) 按完補點名回到頁面
         {
             List<rollcallTable_1> bn = db.rollcallTable_1.ToList();
+            List<allrollcallTable_1> allw = db.allrollcallTable_1.ToList();
             if (status != null)
             {
                 foreach (var status1 in status)
@@ -97,6 +104,35 @@ namespace MyFirstMVCWeb.Controllers
                         }
                     }
                 }
+            }
+            int one11 = 0;
+            if (status != null)
+            {
+                foreach (var status1 in status)
+                {
+                    foreach (var be in allw)
+                    {
+                        if (be.data == data2)
+                        {
+                            if (be.class2 == class2)
+                            {
+                                if (be.status == status1)
+                                {
+                                    String time = DateTime.Now.ToString("HH:mm:ss");
+                                    be.time = time;
+                                    be.attend = "補點";
+                                    db.SaveChanges();
+                                    one11 = 2;
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+            if (one11 == 2)
+            {
+                return RedirectToAction("one1", new { class2, data2 });
             }
             return RedirectToAction("exit1", new { class2 });
         }
@@ -148,7 +184,7 @@ namespace MyFirstMVCWeb.Controllers
         [HttpPost]
         //點名紀錄
         //更改點名紀錄(解決)
-        public ActionResult del(string[] status, string class2)
+        public ActionResult del(string[] status, string class2, string data2)
         {///最後一次保存所有資料
             List<rollcallTable_1> bn = db.rollcallTable_1.ToList();
             if (status != null)
@@ -173,9 +209,44 @@ namespace MyFirstMVCWeb.Controllers
                     }
                 }
             }
+            int one11 = 0;
+            List<allrollcallTable_1> allw = db.allrollcallTable_1.ToList();
+            if (status != null)
+            {
+                foreach (var status1 in status)
+                {
+                    foreach (var be in allw)
+                    {
+                        if (be.data == data2)
+                        {
+                            if (be.class2 == class2)
+                            {
+                                if (be.status == status1)
+                                {
+                                    if (be.attend == "補點")
+                                    {
+                                        be.time = null;
+                                        be.attend = "未到課";
+                                        db.SaveChanges();
+                                        one11 = 2;
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+            if (one11 == 2)
+            {
+                return RedirectToAction("one1", new { class2, data2 });
+            }
             return RedirectToAction("exit1", new { class2 });
         }
-
+        /// <summary>
+        /// 人臉辨識資料傳值位址
+        /// </summary>
+        /// <returns></returns>
         public ActionResult exit2()
         {
             string time = Request.QueryString["cratetime"];
@@ -191,8 +262,8 @@ namespace MyFirstMVCWeb.Controllers
                 if (z.week == tmp)
                 {
                     double w = Convert.ToDouble(z.time);
-                    w = w + 5;
-                    oe = w - 65;
+                    w = w + 5;///上課後
+                    oe = w - 65;///上課前
                     if (nowtim > oe & nowtim < w)
                     {
                         foreach (var n in Q)
@@ -213,9 +284,54 @@ namespace MyFirstMVCWeb.Controllers
             return RedirectToAction("exit1", new { time, status });
         }
 
+        public ActionResult exit3()
+        {
+            string time = Request.QueryString["cratetime"];
+            string status = Request.QueryString["status"];
+            ViewBag.data3 = time;
+            ViewBag.data65 = status;
+            ////人臉辨識 先去判斷時間 判斷完時間再去判斷課程 之後去找學生資料更新
+            List<rollcallTable_1> Q = db.rollcallTable_1.ToList();
+            List<classromTable_1> q = db.classromTable_1.ToList();
+            double nowtim = Convert.ToDouble(DateTime.Now.ToString("HHmm"));//把時間轉為int類型
+            string tmp = DateTime.Now.DayOfWeek.ToString();
+            double oe = 0;
+            foreach (var z in q)
+            {
+                if (z.week == tmp)
+                {
+                    double w = Convert.ToDouble(z.time);
+                    w = w + 5;///上課後
+                    oe = w - 65;///上課前
+                    if (nowtim > oe & nowtim < w)
+                    {
+                        foreach (var n in Q)
+                        {
+                            if (z.Course == n.class2)
+                            {
+                                if (n.status == status)
+                                {
+                                    n.time = time;
+                                    n.attend = "已到課";
+                                    db.SaveChanges();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return RedirectToAction("exit1", new { time, status });
+        }
+
+
         public ActionResult exit1(string a, string b, string class2, string time, string status)
         {//國文課14點上課 英文課9.上課  數學課17點上課
-
+            string teacher_name = Convert.ToString(Session["name"]);
+            teacher1 we1 = db.teacher1.FirstOrDefault(t => t.teachername == teacher_name);
+            if (we1 != null)
+            {
+                ViewBag.teacherid = we1.teacher;
+            }
             if (Session["name"] == null)
             {
                 return RedirectToAction("register", "one");
@@ -256,9 +372,37 @@ namespace MyFirstMVCWeb.Controllers
                 }
 
             }
-
-            ///重置昨天的暫時點名表
+            //檢查是否有遺漏名單
+            foreach (var classro in wx)
+            {
+                if (classro.week == tmp)
+                {
+                    rollcallTable_1 rollca = db.rollcallTable_1.FirstOrDefault(t => t.class2 == classro.Course);
+                    {
+                        if (rollca == null)
+                        {
+                            List<course1Table_1> co1 = db.course1Table_1.ToList();
+                            foreach (var ce in co1)
+                            {//把每個學生照著選課加進點名單
+                                if (ce.course == classro.Course)
+                                {
+                                    student1Table_1 c = db.student1Table_1.FirstOrDefault(t => t.stud == ce.status);
+                                    w.name = c.name;
+                                    w.status = c.stud;
+                                    w.class1 = c.class1;
+                                    w.class2 = ce.course;
+                                    w.attend = "未到課";
+                                    w.data = Date;
+                                    db.rollcallTable_1.Add(w);
+                                    db.SaveChanges();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             List<rollcallTable_1> we = db.rollcallTable_1.ToList();
+            ///重置昨天的暫時點名表
             foreach (var wq in we)
             {
                 if (wq.data != Date)
@@ -371,7 +515,7 @@ namespace MyFirstMVCWeb.Controllers
         }
 
         //總紀錄
-        public ActionResult one1()
+        public ActionResult one1(string class2, string data2)
         {
             if (Session["name"] == null)
             {
@@ -381,7 +525,7 @@ namespace MyFirstMVCWeb.Controllers
             List<classromTable_1> wx = db.classromTable_1.ToList();
 
 
-            ViewBag.data4 = wx;
+            ViewBag.data4 = wx;//課程
             ////抓取點名總紀錄裡的日期
             List<allrollcallTable_1> wr = db.allrollcallTable_1.ToList();
             string i = "";
@@ -399,7 +543,16 @@ namespace MyFirstMVCWeb.Controllers
                 }
 
             }
-            ViewBag.data1 = a;
+            string we1 = Convert.ToString(Session["name"]);
+            teacher1 teacher1s = db.teacher1.FirstOrDefault(t => t.teachername == we1);
+            if (teacher1s != null)
+            {
+                ViewBag.teacher = teacher1s.teacher;
+            }
+            ViewBag.data3 = wr;
+            ViewBag.select1 = class2;
+            ViewBag.select2 = data2;
+            ViewBag.data1 = a;///日期
             return View();
         }
         ///搜索問題
@@ -417,8 +570,8 @@ namespace MyFirstMVCWeb.Controllers
                 ViewBag.classroom = zw.classroom;
             }
             ViewBag.data3 = wr;
-            ViewBag.select1 = select1;
-            ViewBag.select2 = select2;
+            ViewBag.select1 = select1;//選擇課程
+            ViewBag.select2 = select2;//選擇日期
             string i = "";
             foreach (var wq in wr)
             {
@@ -433,6 +586,12 @@ namespace MyFirstMVCWeb.Controllers
 
                 }
 
+            }
+            string we1 = Convert.ToString(Session["name"]);
+            teacher1 teacher1s = db.teacher1.FirstOrDefault(t => t.teachername == we1);
+            if (teacher1s != null)
+            {
+                ViewBag.teacher = teacher1s.teacher;
             }
             ViewBag.data1 = a;
             //日期
@@ -548,7 +707,51 @@ namespace MyFirstMVCWeb.Controllers
             return RedirectToAction("studentmenu", new { b });
         }
 
-
+        [HttpPost]
+        public ActionResult adk(string stud, string phonen, string name, string select1, string course)
+        {
+            string b = course;
+            course1Table_1 co = new course1Table_1();
+            student1Table_1 stiu = new student1Table_1();
+            course1Table_1 st = db.course1Table_1.FirstOrDefault(t => t.status == stud & t.course == course);
+            if (st != null)
+            {
+                TempData["messg1"] = "學號與人重複";
+                return RedirectToAction("studentmenu", new { b });
+            }
+            else
+            {
+                co.status = stud;
+                co.course = course;
+                db.course1Table_1.Add(co);
+                db.SaveChanges();
+            }
+            student1Table_1 student = db.student1Table_1.FirstOrDefault(t => t.stud == stud);
+            if (student != null)
+            {
+                TempData["messg1"] = "學號與人重複";
+                return RedirectToAction("studentmenu", new { b });
+            }
+            else
+            {
+                student1Table_1 studentw = db.student1Table_1.FirstOrDefault(t => t.phone == phonen);
+                if (studentw == null)
+                {
+                    stiu.stud = stud;
+                    stiu.name = name;
+                    stiu.class1 = select1;
+                    stiu.phone = phonen;
+                    db.course1Table_1.Add(co);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    TempData["messg1"] = "電話號碼與人重複";
+                    return RedirectToAction("studentmenu", new { b });
+                }
+            }
+            return RedirectToAction("studentmenu", new { b });
+        }
 
     }
 }

@@ -67,7 +67,7 @@
         <div id="alert" class="alert alert-danger alert-dismissible fade show" role="alert">
             <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
             <strong>
-                @ViewBag.messg1
+                @TempData["messg1"]
             </strong>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -119,14 +119,14 @@
                     <form class="row g-3 needs-validation" method="post" action="~/student/change">
                         <div class="col-md-4">
                             <label for="validationCustom01" class="form-label">姓名</label>
-                            <input name="name" type="text" pattern="^[\u4E00-\u9FA5A-Za-z]{2,5}$" class="form-control" id="validationCustom01" value="@namee">
+                            <input name="name" type="text" pattern="\W{0,}" class="form-control" id="validationCustom01" value="@namee" required>
                             <div class="invalid-feedback">
                                 請輸入姓名.
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label for="validationCustom02" class="form-label">連絡電話</label>
-                            <input name="phone" type="text" onkeyup="value=value.replace(/[^\d]/g,'') " pattern="09\d{2}\-?\d{3}\-?\d{3}" minlength="10" maxlength="10" class="form-control" id="validationCustom02" value="@phone">
+                            <input name="phone" type="text" pattern="\d{10,10}" minlength="10" maxlength="10" class="form-control" id="validationCustom02" value="@phone" required>
                             <div class="invalid-feedback">
                                 請輸入電話格式.
                             </div>
@@ -160,14 +160,54 @@
                     更改密碼
                 </button>
             </h2>
-            <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
-                <div class="accordion-body">
-                    <form method="post" action="~/student/change">
-                        <div class="input-group col-mb-6 glyphicon-text-width">
-                            <span class="input-group-text" id="inputGroup-sizing-default">
-                                新密碼
-                            </span>
-                            <input id="inputPassword" name="pass" type="password" pattern="^(?=.*[a-zA-Z])(?=.*[0-9]).{6,}$" required="required" oninput="setCustomValidity('');" oninvalid="setCustomValidity('請輸入正確的密碼格式:含英數至少六個字元');" class="form-control" aria-label="Recipient's username" aria-describedby="button-addon2">
+            <form method="post" action="~/student/change">
+                <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">
+                        @*<div class="input-group col-mb-6 glyphicon-text-width">
+                                <span class="input-group-text" id="inputGroup-sizing-default">
+                                    新密碼
+                                </span>
+                                <input id="inputPassword" name="pass" type="password" pattern="[a-zA-Z0-9]{0,}" required="required" oninput="setCustomValidity('');" oninvalid="setCustomValidity('請輸入正確的密碼格式:含英數至少六個字元');" class="form-control" aria-label="Recipient's username" aria-describedby="button-addon2">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="change()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"></path>
+                                            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
+                                        </svg>
+                                        <span class="visually-hidden">Button</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="invalid-feedback">
+                                請輸入新密碼.
+                            </div>
+
+
+
+                            <div class="input-group col-mb-5 glyphicon-text-width">
+                                <span class="input-group-text" id="inputGroup-sizing-default">
+                                    確認新密碼
+                                </span>
+                                <input id="ConfirmPassword" type="password" required="required" oninput="setCustomValidity('');" onblur="if(document.getElementById('inputPassword').value != document.getElementById('ConfirmPassword').value){setCustomValidity('密碼不吻合');}" onclick="ceq()" class="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" />
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="change1()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"></path>
+                                            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
+                                        </svg>
+                                        <span class="visually-hidden">Button</span>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    請再輸入一次新密碼.
+                                </div>
+                            </div>*@
+
+                        <label for="formGroupExampleInput" class="form-label">新密碼</label>
+
+                        <div class="mb-3 input-group">
+                            <input id="inputPassword" name="pass" type="password" pattern="[a-zA-Z0-9]{0,}" required="required" oninput="setCustomValidity('');" oninvalid="setCustomValidity('請輸入正確的密碼格式:含英數至少六個字元');" class="form-control" aria-label="Recipient's username" aria-describedby="button-addon2">
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" onclick="change()">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
@@ -178,17 +218,8 @@
                                 </button>
                             </div>
                         </div>
-
-                        <div class="invalid-feedback">
-                            請輸入新密碼.
-                        </div>
-
-
-
-                        <div class="input-group col-mb-5 glyphicon-text-width">
-                            <span class="input-group-text" id="inputGroup-sizing-default">
-                                確認新密碼
-                            </span>
+                        <div class="mb-3">
+                            <label for="formGroupExampleInput2" class="form-label">重新輸入新密碼</label>
                             <input id="ConfirmPassword" type="password" required="required" oninput="setCustomValidity('');" onblur="if(document.getElementById('inputPassword').value != document.getElementById('ConfirmPassword').value){setCustomValidity('密碼不吻合');}" onclick="ceq()" class="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" />
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" onclick="change1()">
@@ -199,16 +230,14 @@
                                     <span class="visually-hidden">Button</span>
                                 </button>
                             </div>
-                            <div class="invalid-feedback">
-                                請再輸入一次新密碼.
-                            </div>
                         </div>
-                        <div class="col-12">
-                            <button id="TetstText" class="btn btn-primary" type="submit">更改</button>
-                        </div>
-                    </form>
+
+                    </div>
+                    <button id="TetstText" class="btn btn-primary" type="submit">更改</button>
                 </div>
-            </div>
+
+
+            </form>
         </div>
     </div>
     <script>
